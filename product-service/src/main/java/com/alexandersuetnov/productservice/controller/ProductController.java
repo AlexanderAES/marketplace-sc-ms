@@ -4,15 +4,17 @@ import com.alexandersuetnov.productservice.dto.ProductDTO;
 import com.alexandersuetnov.productservice.mappers.ProductMapper;
 import com.alexandersuetnov.productservice.model.Product;
 import com.alexandersuetnov.productservice.service.ProductService;
+import com.alexandersuetnov.productservice.validation.ResponseErrorValidation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.util.ObjectUtils;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+import java.security.Principal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -23,11 +25,39 @@ import java.util.stream.Collectors;
 public class ProductController {
 
     private final ProductService productService;
+    private final ResponseErrorValidation responseErrorValidation;
+
+
+    @PostMapping("/create")
+
+    public ResponseEntity<Object> createProduct(@Valid @RequestBody
+                                                        ProductDTO productDTO,
+                                                BindingResult bindingResult,
+                                                Principal principal) {
+        ResponseEntity<Object> errors = responseErrorValidation.mapValidationService(bindingResult);
+        if (!ObjectUtils.isEmpty(errors)) return errors;
+        Product product = productService.createProduct(productDTO, principal);
+        ProductDTO createdProduct = ProductMapper.INSTANCE.ProductToProductDTO(product);
+        log.info("Save new product with name {} to database", productDTO.getTitle());
+        return new ResponseEntity<>(createdProduct, HttpStatus.OK);
+    }
+
 
     @GetMapping("/info/{productId}")
-    public ResponseEntity<Product> getProduct(@PathVariable("productId") String productId) {
+    public ResponseEntity<ProductDTO> getProduct(@PathVariable("productId") String productId) {
         Product product = productService.getProductById(Long.parseLong(productId));
-        return ResponseEntity.ok(product);
+        ProductDTO productDTOInfo = ProductMapper.INSTANCE.ProductToProductDTO(product);
+        return new ResponseEntity<>(productDTOInfo,HttpStatus.OK);
+    }
+
+    @GetMapping("/search/{title}")
+    public ResponseEntity<List<ProductDTO>> getAllProductsByTitle(@PathVariable("title") String title) {
+        List<ProductDTO> productDTOList = productService.getAllProductsByTitle(title)
+                .stream()
+                .map(ProductMapper.INSTANCE::ProductToProductDTO)
+                .collect(Collectors.toList());
+        log.info("Get get all products");
+        return new ResponseEntity<>(productDTOList, HttpStatus.OK);
     }
 
     @GetMapping("/all")
@@ -38,6 +68,18 @@ public class ProductController {
                 .collect(Collectors.toList());
         log.info("Get get all products");
         return new ResponseEntity<>(productDTOList, HttpStatus.OK);
+    }
+
+    @DeleteMapping("/delete/{productId}")
+    public ResponseEntity<String> deleteProduct(@PathVariable("productId") String productId){
+        return ResponseEntity.ok(productService.deleteProduct(productId));
+    }
+
+    @PutMapping("/update/{productId}/{userId}")
+    public ResponseEntity<String>updateProduct(
+            @PathVariable("productId") String productId,@PathVariable("userId") String userId,
+            @RequestBody ProductDTO request){
+        return ResponseEntity.ok(productService.updateProduct(request,productId,userId));
     }
 
 
