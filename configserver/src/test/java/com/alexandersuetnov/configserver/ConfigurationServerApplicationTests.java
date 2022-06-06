@@ -1,10 +1,10 @@
-package com.alexandersuetnov.marketplacescms;
+package com.alexandersuetnov.configserver;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class MarketplaceScMsApplicationTests {
+class ConfigurationServerApplicationTests {
 
 	@Test
 	void contextLoads() {
