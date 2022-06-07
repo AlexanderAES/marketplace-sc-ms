@@ -1,4 +1,4 @@
-package alexandersuetnov.userservice;
+package com.alexandersuetnov.userservice;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
