@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: registry
+  cloud:
+    config:
+      uri: http://localhost:8080
+      fail-fast: true
+      password: admin
+      username: user

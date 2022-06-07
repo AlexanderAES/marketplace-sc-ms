@@ -5,6 +5,11 @@
     <packaging>pom</packaging>
     <modules>
         <module>product-service</module>
+        <module>configserver</module>
+        <module>registry</module>
+		<module>gateway</module>
+        <module>user-service</module>
+        <module>image-servise</module>
     </modules>
     <parent>
 		<groupId>org.springframework.boot</groupId>

@@ -19,7 +19,7 @@ public class ProductService {
 
     private final ProductRepository productRepository;
 
-    public Product createProduct(ProductDTO productDTO, Principal principal) {
+    public Product createProduct(ProductDTO productDTO) {
             Product product = ProductMapper.INSTANCE.ProductDTOtoProduct(productDTO);
             log.info("Saving product for user with id: {}", product.getUserId());
             return productRepository.save(product);
@@ -47,7 +47,7 @@ public class ProductService {
         return responseMessage;
     }
 
-    public String updateProduct(ProductDTO productDTO,String userId,String productId) {
+    public String updateProduct(ProductDTO productDTO,String productId) {
         Product currentProduct = getProductById(Long.parseLong(productId));
         String responseMessage;
         if (productDTO != null){
@@ -55,7 +55,6 @@ public class ProductService {
             //ToDo сделать проверку на соответствие продукта и пользователя isEquals(){}
 
             currentProduct = ProductMapper.INSTANCE.ProductDTOtoProduct(productDTO);
-            currentProduct.setUserId(userId);
             responseMessage = String.format("Update product with title {}", productDTO.getTitle());
             log.info("Update product with title {}", productDTO.getTitle());
             return responseMessage;
