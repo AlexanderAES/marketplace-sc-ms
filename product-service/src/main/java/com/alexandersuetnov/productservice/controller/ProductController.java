@@ -18,6 +18,9 @@ import java.security.Principal;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
 @RestController
 @RequestMapping("api/v1/products")
 @RequiredArgsConstructor
@@ -36,7 +39,7 @@ public class ProductController {
                                                 Principal principal) {
         ResponseEntity<Object> errors = responseErrorValidation.mapValidationService(bindingResult);
         if (!ObjectUtils.isEmpty(errors)) return errors;
-        Product product = productService.createProduct(productDTO, principal);
+        Product product = productService.createProduct(productDTO);
         ProductDTO createdProduct = ProductMapper.INSTANCE.ProductToProductDTO(product);
         log.info("Save new product with name {} to database", productDTO.getTitle());
         return new ResponseEntity<>(createdProduct, HttpStatus.OK);
@@ -46,8 +49,17 @@ public class ProductController {
     @GetMapping("/info/{productId}")
     public ResponseEntity<ProductDTO> getProduct(@PathVariable("productId") String productId) {
         Product product = productService.getProductById(Long.parseLong(productId));
-        ProductDTO productDTOInfo = ProductMapper.INSTANCE.ProductToProductDTO(product);
-        return new ResponseEntity<>(productDTOInfo,HttpStatus.OK);
+        ProductDTO productDTO = ProductMapper.INSTANCE.ProductToProductDTO(product);
+        product.add(linkTo(methodOn(ProductController.class)
+                        .getProduct(productId))
+                        .withSelfRel(),
+                linkTo(methodOn(ProductController.class)
+                        .updateProduct(productId, productDTO))
+                        .withRel("updateProduct"),
+                linkTo(methodOn(ProductController.class)
+                        .deleteProduct(productId))
+                        .withRel("deleteProduct"));
+        return new ResponseEntity<>(productDTO, HttpStatus.OK);
     }
 
     @GetMapping("/search/{title}")
@@ -71,16 +83,15 @@ public class ProductController {
     }
 
     @DeleteMapping("/delete/{productId}")
-    public ResponseEntity<String> deleteProduct(@PathVariable("productId") String productId){
+    public ResponseEntity<String> deleteProduct(@PathVariable("productId") String productId) {
         return ResponseEntity.ok(productService.deleteProduct(productId));
     }
 
-    @PutMapping("/update/{productId}/{userId}")
-    public ResponseEntity<String>updateProduct(
-            @PathVariable("productId") String productId,@PathVariable("userId") String userId,
-            @RequestBody ProductDTO request){
-        return ResponseEntity.ok(productService.updateProduct(request,productId,userId));
+    @PutMapping("/update/{productId}")
+    public ResponseEntity<String> updateProduct(
+            @PathVariable("productId") String productId,
+            @RequestBody ProductDTO productDTO) {
+        return ResponseEntity.ok(productService.updateProduct(productDTO, productId));
     }
-
 
 }
