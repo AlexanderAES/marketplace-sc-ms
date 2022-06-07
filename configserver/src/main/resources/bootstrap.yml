@@ -1,5 +1,17 @@
 spring:
   application:
-      name: config-server
+    name: config-server
+  profiles:
+    active:
+      - native
+#      - , git
+  cloud:
+    config:
+      server:
+        native:
+          search-locations: classpath:/config
+          #git:
+          #searchPaths: productservice
+
 server:
-  port: 8083
+  port: 8071
