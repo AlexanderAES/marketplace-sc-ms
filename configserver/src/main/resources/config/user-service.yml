@@ -1,16 +1,17 @@
 spring:
   jpa:
-    database: POSTGRESQL
+    database: MySQL
     properties.hibernate.temp.use_jdbc_metadata_defaults: false
     hibernate:
-      ddl-auto: create
+      ddl-auto: validate
     properties:
   datasource:
-    platform: postgres
-    url: jdbc:postgresql://localhost:5432/user_service_database
-    username: postgres
-    password: postgres
+    platform: mysql
+    url: jdbc:mysql://localhost:3306/user_service_database?useSSL=false&serverTimezone=UTC
+    username: bestuser
+    password: bestuser
     driver-class-name: org.postgresql.Driver
+
 
 server:
   servlet:

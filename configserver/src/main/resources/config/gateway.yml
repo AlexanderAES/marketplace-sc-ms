@@ -1,36 +1,27 @@
-hystrix:
-  command:
-    default:
-      execution:
-        isolation:
-          thread:
-            timeoutInMilliseconds: 20000
+routes:
+  user-service:
+    path: /users/**
+    serviceId: user-service
+    stripPrefix: false
 
-ribbon:
-  ReadTimeout: 20000
-  ConnectTimeout: 20000
+  product-service:
+    path: /products/**
+    serviceId: product-service
+    stripPrefix: false
 
-zuul:
-  ignoredServices: '*'
-  host:
-    connect-timeout-millis: 20000
-    socket-timeout-millis: 20000
+  image-service:
+    path: /images/**
+    serviceId: image-service
+    stripPrefix: false
 
-  routes:
-    user-service:
-      path: /users/**
-      serviceId: user-service
-      stripPrefix: false
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
 
-    product-service:
-      path: /products/**
-      serviceId: product-service
-      stripPrefix: false
-
-    image-service:
-      path: /images/**
-      serviceId: image-service
-      stripPrefix: false
+logging:
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} ${LOG_LEVEL_PATTERN:-%5p} %m%n"
 
 server:
-  port: 8989
+  port: 9100
