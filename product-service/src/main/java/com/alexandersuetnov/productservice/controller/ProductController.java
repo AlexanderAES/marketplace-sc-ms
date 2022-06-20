@@ -1,8 +1,10 @@
 package com.alexandersuetnov.productservice.controller;
 
+import com.alexandersuetnov.productservice.config.JWTFilter;
 import com.alexandersuetnov.productservice.dto.ProductDTO;
 import com.alexandersuetnov.productservice.mappers.ProductMapper;
 import com.alexandersuetnov.productservice.model.Product;
+import com.alexandersuetnov.productservice.payload.MessageResponse;
 import com.alexandersuetnov.productservice.service.ProductService;
 import com.alexandersuetnov.productservice.validation.ResponseErrorValidation;
 import lombok.RequiredArgsConstructor;
@@ -13,32 +15,30 @@ import org.springframework.util.ObjectUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import java.security.Principal;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
-
 @RestController
-@RequestMapping("api/v1/products")
+@RequestMapping(value = "/products")
 @RequiredArgsConstructor
 @Log4j2
 public class ProductController {
 
     private final ProductService productService;
     private final ResponseErrorValidation responseErrorValidation;
+    private final JWTFilter jwtFilter;
 
 
     @PostMapping("/create")
-
-    public ResponseEntity<Object> createProduct(@Valid @RequestBody
-                                                        ProductDTO productDTO,
-                                                BindingResult bindingResult,
-                                                Principal principal) {
+    public ResponseEntity<Object> createProduct(
+            @Valid @RequestBody ProductDTO productDTO,
+            BindingResult bindingResult,
+            HttpServletRequest httpServletRequest) {
         ResponseEntity<Object> errors = responseErrorValidation.mapValidationService(bindingResult);
         if (!ObjectUtils.isEmpty(errors)) return errors;
+        productDTO.setUserId(jwtFilter.getUserIdFromRequest(httpServletRequest));
         Product product = productService.createProduct(productDTO);
         ProductDTO createdProduct = ProductMapper.INSTANCE.ProductToProductDTO(product);
         log.info("Save new product with name {} to database", productDTO.getTitle());
@@ -50,15 +50,15 @@ public class ProductController {
     public ResponseEntity<ProductDTO> getProduct(@PathVariable("productId") String productId) {
         Product product = productService.getProductById(Long.parseLong(productId));
         ProductDTO productDTO = ProductMapper.INSTANCE.ProductToProductDTO(product);
-        product.add(linkTo(methodOn(ProductController.class)
-                        .getProduct(productId))
-                        .withSelfRel(),
-                linkTo(methodOn(ProductController.class)
-                        .updateProduct(productId, productDTO))
-                        .withRel("updateProduct"),
-                linkTo(methodOn(ProductController.class)
-                        .deleteProduct(productId))
-                        .withRel("deleteProduct"));
+//        product.add(linkTo(methodOn(ProductController.class)
+//                        .getProduct(productId))
+//                        .withSelfRel(),
+//                linkTo(methodOn(ProductController.class)
+//                        .updateProduct(productId, productDTO))
+//                        .withRel("updateProduct"),
+//                linkTo(methodOn(ProductController.class)
+//                        .deleteProduct(productId))
+//                        .withRel("deleteProduct"));
         return new ResponseEntity<>(productDTO, HttpStatus.OK);
     }
 
@@ -83,15 +83,41 @@ public class ProductController {
     }
 
     @DeleteMapping("/delete/{productId}")
-    public ResponseEntity<String> deleteProduct(@PathVariable("productId") String productId) {
-        return ResponseEntity.ok(productService.deleteProduct(productId));
+    public ResponseEntity<MessageResponse> deleteProduct(
+            @PathVariable("productId") String productId, HttpServletRequest request) {
+        log.info("Delete product with id {}", productId);
+        return (productService.deleteProduct(productId, request)) ?
+                new ResponseEntity<>(new MessageResponse("Product was deleted"), HttpStatus.OK) :
+                new ResponseEntity<>(new MessageResponse("Product was not deleted"), HttpStatus.FORBIDDEN);
     }
 
     @PutMapping("/update/{productId}")
-    public ResponseEntity<String> updateProduct(
+    public ResponseEntity<Object> updateProduct(
             @PathVariable("productId") String productId,
-            @RequestBody ProductDTO productDTO) {
-        return ResponseEntity.ok(productService.updateProduct(productDTO, productId));
+            @RequestBody ProductDTO productDTO,
+            BindingResult bindingResult,
+            HttpServletRequest request) {
+        ResponseEntity<Object> errors = responseErrorValidation.mapValidationService(bindingResult);
+
+        if (!ObjectUtils.isEmpty(errors)) return errors;
+        Product product = productService.updateProduct(productDTO, productId, request);
+        ProductDTO productUpdated = ProductMapper.INSTANCE.ProductToProductDTO(product);
+
+        if (productUpdated != null) return new ResponseEntity<>(productUpdated, HttpStatus.OK);
+        log.info("Update product with name {} to database", productDTO.getTitle());
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body("The product has not been updated");
+
     }
+
+    @GetMapping("/user/products")
+    public ResponseEntity<List<ProductDTO>> getAllProductsForUser(HttpServletRequest request) {
+        List<ProductDTO> productDTOList = productService.getAllProductFromUser(request)
+                .stream()
+                .map(ProductMapper.INSTANCE::ProductToProductDTO)
+                .collect(Collectors.toList());
+        return new ResponseEntity<>(productDTOList, HttpStatus.OK);
+    }
+
+
 
 }
