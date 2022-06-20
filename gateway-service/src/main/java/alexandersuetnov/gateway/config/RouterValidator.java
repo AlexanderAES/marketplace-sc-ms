@@ -15,7 +15,8 @@ public class RouterValidator {
             "/activate",
             "/users/info",
             "/products/all",
-            "/products/info"
+            "/products/info",
+            "/images/view"
 
     );
 
