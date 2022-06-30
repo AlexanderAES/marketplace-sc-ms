@@ -35,11 +35,14 @@ public class Image {
     private boolean isPreviewImage;
 
     @Lob
-    @Column(columnDefinition = "LONGBLOB")
+    @Column(columnDefinition = "OID")
     private byte[] bytes;
 
     @Column(name = "user_id")
     private String userId;
+
+    @Column(name = "product_id")
+    private String productId;
 
     @Column(name = "create_date")
     private LocalDateTime createDate;
