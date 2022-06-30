@@ -102,14 +102,14 @@ public class UserController {
         return new ResponseEntity<>(userUpdated, HttpStatus.OK);
     }
 
-    @PutMapping("/ban/{userId}")
+    @PutMapping("/admin/ban/{userId}")
     public ResponseEntity<Object> userBan(@PathVariable("userId") String userId) {
         userService.banUserById(userId);
         log.info("User activation changed with id {} ", userId);
         return ResponseEntity.status(HttpStatus.OK).body("User activation changed");
     }
 
-    @GetMapping("/all/users")
+    @GetMapping("/admin/all/users")
     public ResponseEntity<List<UserDTO>> getListUsers() {
         List<UserDTO> userDTOList = userService.getListUsers()
                 .stream()
