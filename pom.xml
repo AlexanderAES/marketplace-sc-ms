@@ -7,15 +7,15 @@
         <module>product-service</module>
         <module>configserver</module>
         <module>registry</module>
-		<module>gateway</module>
         <module>user-service</module>
-        <module>image-servise</module>
+        <module>image-service</module>
+        <module>gateway-service</module>
     </modules>
     <parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>2.7.0</version>
-		<relativePath/> <!-- lookup parent from repository -->
+		<relativePath/>
 	</parent>
 	<groupId>com.alexandersuetnov</groupId>
 	<artifactId>marketplace-sc-ms</artifactId>
