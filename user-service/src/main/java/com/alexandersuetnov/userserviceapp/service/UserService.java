@@ -50,15 +50,12 @@ public class UserService {
         }
     }
 
-    public User getById(Long id) {
-        return userRepository.findById(id).orElse(null);
-    }
 
     private void sendMessage(User user) {
         if (!StringUtils.isEmpty(user.getEmail())) {
             String message = String.format(
                     "Hello, %s! \n" +
-                            "Welcome to Market place. Please, visit next link: http://localhost:9090/users/activate/%s",
+                            "Welcome to Market place. Please, visit next link: http://localhost:8080/users/activate/%s",
                     user.getUsername(),
                     user.getActivationCode()
             );
