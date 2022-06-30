@@ -2,7 +2,6 @@ package com.alexandersuetnov.productservice.service;
 
 import com.alexandersuetnov.productservice.config.JWTFilter;
 import com.alexandersuetnov.productservice.dto.ProductDTO;
-import com.alexandersuetnov.productservice.exception.ProductNotFoundException;
 import com.alexandersuetnov.productservice.mappers.ProductMapper;
 import com.alexandersuetnov.productservice.model.Product;
 import com.alexandersuetnov.productservice.repository.ProductRepository;
@@ -11,7 +10,6 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
-import java.security.Principal;
 import java.util.List;
 
 @Service
