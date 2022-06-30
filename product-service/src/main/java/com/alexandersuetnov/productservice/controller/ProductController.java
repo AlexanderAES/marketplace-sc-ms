@@ -50,15 +50,6 @@ public class ProductController {
     public ResponseEntity<ProductDTO> getProduct(@PathVariable("productId") String productId) {
         Product product = productService.getProductById(Long.parseLong(productId));
         ProductDTO productDTO = ProductMapper.INSTANCE.ProductToProductDTO(product);
-//        product.add(linkTo(methodOn(ProductController.class)
-//                        .getProduct(productId))
-//                        .withSelfRel(),
-//                linkTo(methodOn(ProductController.class)
-//                        .updateProduct(productId, productDTO))
-//                        .withRel("updateProduct"),
-//                linkTo(methodOn(ProductController.class)
-//                        .deleteProduct(productId))
-//                        .withRel("deleteProduct"));
         return new ResponseEntity<>(productDTO, HttpStatus.OK);
     }
 
@@ -117,7 +108,6 @@ public class ProductController {
                 .collect(Collectors.toList());
         return new ResponseEntity<>(productDTOList, HttpStatus.OK);
     }
-
 
 
 }

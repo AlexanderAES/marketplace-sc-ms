@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Product extends RepresentationModel<Product> {
+public class Product {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
